@@ -186,7 +186,9 @@ bool Synchronizer::checkPass()
 
 QByteArray Synchronizer::hash(QByteArray array)
 {
-	return gan_::encryption::hash(array);
+        return array;
+        // gan_ is missing from the original source
+        // return gan_::encryption::hash(array);
 }
 
 void Synchronizer::import()

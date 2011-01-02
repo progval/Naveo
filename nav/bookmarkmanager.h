@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BOOKMARKMANAGER_H
 
 #include <QtGui>
-#include <QtNetWork>
+#include <QtNetwork>
 #include <QtWebKit>
 #include <iostream>
 #include "bookmarktree.h"

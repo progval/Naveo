@@ -30,8 +30,7 @@ HEADERS += Browser.h \
 	historymanager.h \
 	helper.h \
 	page.h \
-	synchronizer.h \
-	../../gan_/gan.h \
+        synchronizer.h \
 	bookmarktree.h \
 	speeddial.h \
 	about.h \
@@ -63,8 +62,7 @@ SOURCES += Browser.cpp \
 	bookmarktree.cpp \
 	speeddial.cpp \
 	about.cpp \
-	urldialog.cpp \
-	../../gan_/gan.cpp \
+        urldialog.cpp \
 	javascriptconsole.cpp \
 	cleardialog.cpp \
 	pluginmanager.cpp \
