@@ -1,0 +1,39 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon.png</file>
+        <file>maj.png</file>
+        <file>closetab.png</file>
+        <file>closetab_.png</file>
+        <file>default.png</file>
+        <file>speedDial.png</file>
+        <file>about_fr.txt</file>
+        <file>Google.png</file>
+        <file>bing.png</file>
+        <file>Yahoo.png</file>
+        <file>exalead.png</file>
+        <file>build.txt</file>
+        <file>new.png</file>
+        <file>https.png</file>
+        <file>icon.ico</file>
+        <file>screen.png</file>
+        <file>settings.png</file>
+        <file>plug.png</file>
+        <file>history.png</file>
+        <file>code.png</file>
+        <file>loading.gif</file>
+        <file>naveo.png</file>
+        <file>naveo_.png</file>
+        <file>synchro.png</file>
+        <file>save.png</file>
+        <file>copy.png</file>
+        <file>cut.png</file>
+        <file>paste.png</file>
+        <file>search.png</file>
+        <file>gpl.txt</file>
+        <file>session.png</file>
+        <file>void.png</file>
+        <file>arrow.png</file>
+        <file>error.png</file>
+        <file>desactivated.png</file>
+    </qresource>
+</RCC>

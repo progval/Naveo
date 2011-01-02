@@ -1,0 +1,8 @@
+Naveo %1  (version %2)<br>
+software made by  gan_<br>
+Compilé le %3 à %4 (build #%5)<br>
+<br>
+Naveo est un naigateur web <a href="license">Open-Sources</a> multi-platformes utilisant WebKit founit par <br>
+le framwork C++ <a href="aboutQt">%6</a> et QtWebKit<br>
+
+
