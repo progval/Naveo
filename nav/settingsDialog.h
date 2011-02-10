@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include <iostream>
 #include "ui_settings.h"
-#include "cookiejar.h"
+#include "CookieJar.h"
 #include "synchronizer.h"
 #include "pluginmanager.h"
 

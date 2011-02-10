@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "version.h"
 #include "download.h"
 #include "httpget.h"
-#include "cookiejar.h"
+#include "CookieJar.h"
 #include "mainWin.h"
 #include "networkaccessmanager.h"
 #include "bookmarkmanager.h"

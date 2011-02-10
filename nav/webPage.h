@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "webview.h"
 #include "speeddial.h"
 #include "googlesuggest.h"
-#include "cookiejar.h"
+#include "CookieJar.h"
 #include "javascriptconsole.h"
 #include "passwordmanager.h"
 #include "dockwidget.h"

@@ -3,3 +3,4 @@
 *.so.*
 exe/Naveo
 *~
+moc_*.cpp
