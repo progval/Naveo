@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef HEADER_MAINWIN
 #define HEADER_MAINWIN
 
-#undef CUSTOM_WINDOW
-
 #include <QtGui>
 #include <QtWebKit>
 #include "webPage.h"
@@ -91,12 +89,15 @@ class TabBar : public QTabBar
 		TabBar(QWidget *parent = 0) : QTabBar(parent)
 		{
 			grabing = false;
+			setElideMode(Qt::ElideRight);
 		}
 
 	signals:
 		void grab(QPoint p);
 
 	protected:
+		QSize tabSizeHint(int index) const;
+
 		void mousePressEvent(QMouseEvent *event)
 		{
 			if(tabAt(event->pos()) == -1)
@@ -123,6 +124,7 @@ class TabBar : public QTabBar
 		}
 
 		void contextMenuEvent(QContextMenuEvent *event);
+
 	private:
 		bool grabing;
 		QPoint base;

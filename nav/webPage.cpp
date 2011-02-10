@@ -64,15 +64,10 @@ void webPage::create(WebView *view)
 	loadinging = false;
 	isADownload = false;
 	noError = false;
-	#ifdef INTEGRATED_FTP
-	isFtp = false;
-	backOrForward = false;
-	currentHistoryIndex = -1;
-	ftp = 0;
-	#endif
 	downloads = 0;
 	page = view;
 	page->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+	page->page()->setNetworkAccessManager(Browser::instance()->accessManager());
 	page->setDarkMode(settings->value("dark").toBool());
 	dial = new SpeedDial;
 	//---------------------------------------------------------------------------------------------------------------------
@@ -134,7 +129,6 @@ void webPage::create(WebView *view)
 	showDownloadButton->setVisible(settings->value("dlInk").toBool());
 	dialAction->setVisible(settings->value("speedDial").toBool());
 	page->page()->setForwardUnsupportedContent(true);
-	page->page()->networkAccessManager()->setCookieJar(Browser::instance()->cJar());
 	statusBar()->hide();
 	javascriptConsole = 0;
 	toolBar = new QToolBar(tr("Actions"));
@@ -176,6 +170,15 @@ void webPage::create(WebView *view)
 	findPreviousButton->setFixedWidth(30);
 	findBar->addWidget(findPreviousButton);
 	findBar->close();
+	passBar = new QToolBar(tr("Enregister"));
+	passBar->setMovable(false);
+	QPushButton *saveButton = new QPushButton(tr("Oui"));
+	QPushButton *dontSaveButton = new QPushButton(tr("Non"));
+	QPushButton *saveOnceButton = new QPushButton(tr("Oui pour cette fois"));
+	passBar->widgetForAction(passBar->addWidget(new QLabel(tr("Voulez vous que Naveo se souvienne de votre mot de passe ?"))))->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	passBar->addWidget(saveButton);
+	passBar->addWidget(saveOnceButton);
+	passBar->addWidget(dontSaveButton);
 
 	setCentralWidget(stack);
 
@@ -232,19 +235,7 @@ void webPage::create(WebView *view)
 	showAction->setShortcut(tr("Ctrl+H"));
 	findAction->setShortcut(tr("Ctrl+F"));
 	sourcesAction->setShortcut(tr("Ctrl+U"));
-	/*QFile listFile(":/block.txt");
-	char item[256];
-	listFile.open(QIODevice::ReadOnly);
-	do
-	{
-	listFile.readLine(item, 256);
-	QString site(item);
-	site.replace("\n", "");
-	site = site.left(site.size() - 1);
-	if (site.right(1) == "/"){
-		site = site.left(site.size() - 1);}
-	siteList.append(site);
-	}while(!listFile.atEnd());*/
+
 	bookmarkBar = new QToolBar(tr("Favoris"));
 	switch (settings->value("posPerso").toInt())
 	{
@@ -266,26 +257,11 @@ void webPage::create(WebView *view)
 	{
 		bookmarkBar->close();
 	}
+	addToolBar(Qt::BottomToolBarArea, passBar);
+	passBar->close();
 	bookmarkBar->setIconSize(QSize(16, 16));
 	bookmarkBar->setMovable(false);
 	bookmarkBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-	settings->beginGroup("proxy");
-	QNetworkProxy proxy;
-	if (settings->value("enabled", false).toBool()) {
-		if (settings->value("type", 0).toInt() == 0)
-			proxy.setType(QNetworkProxy::Socks5Proxy);
-		else
-			proxy.setType(QNetworkProxy::HttpProxy);
-		proxy.setHostName(settings->value("hostName").toString());
-		proxy.setPort(settings->value("port", 1080).toInt());
-		proxy.setUser(settings->value("userName").toString());
-		proxy.setPassword(settings->value("password").toString());
-	}
-	settings->endGroup();
-	page->page()->networkAccessManager()->setProxy(proxy);
-	QNetworkDiskCache *cache = new QNetworkDiskCache;
-	cache->setCacheDirectory(qApp->applicationDirPath() + "/cache/");
-	page->page()->networkAccessManager()->setCache(cache);
 	setAttribute(Qt::WA_DeleteOnClose);
 	updateBookMark();
 
@@ -307,12 +283,12 @@ void webPage::create(WebView *view)
 	connect(addBookMarkAction, SIGNAL(triggered()), this, SLOT(addToBookMark()));
 	connect(page, SIGNAL(addToBookMarks()), this, SLOT(addToBookMark()));
 	connect(orgBookMarkAction, SIGNAL(triggered()), Browser::instance()->bmManager(), SLOT(show()));
-	connect(forwardAction, SIGNAL(triggered()), page, SLOT(forward()));
+	connect(forwardAction, SIGNAL(triggered()), this, SLOT(forward()));
 	connect(cacheAction, SIGNAL(triggered()), this, SLOT(inCache()));
 	connect(reloadAction, SIGNAL(triggered()), page, SLOT(reload()));
 	connect(helpAction, SIGNAL(triggered()), Browser::instance(), SLOT(showHelp()));
-	connect(backAction, SIGNAL(triggered()), page, SLOT(back()));
-	connect(backButton, SIGNAL(clicked()), page, SLOT(back()));
+	connect(backAction, SIGNAL(triggered()), this, SLOT(back()));
+	connect(backButton, SIGNAL(clicked()), this, SLOT(back()));
 	connect(stopAction, SIGNAL(triggered()), page, SLOT(stop()));
 	connect(inspectAction, SIGNAL(triggered()), this, SLOT(inspectPage()));
 	connect(homeAction, SIGNAL(triggered()), this, SLOT(goToHome()));
@@ -336,7 +312,12 @@ void webPage::create(WebView *view)
 	connect(page->page()->action(QWebPage::InspectElement), SIGNAL(triggered()), this, SLOT(inspectPage()));
 	connect(page->page(), SIGNAL(linkClicked(QUrl)), this, SLOT(loadUrl(QUrl)));
 	connect(this, SIGNAL(needPrint(QPrinter *)), page, SLOT(print(QPrinter*)));
-	connect(page->page()->networkAccessManager(), SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this, SLOT(authentification(QNetworkReply *, QAuthenticator *)));
+	connect(Browser::instance()->passManager(), SIGNAL(savePass()), passBar, SLOT(show()));
+	connect(saveButton, SIGNAL(clicked()), Browser::instance()->passManager(), SLOT(yes()));
+	connect(saveOnceButton, SIGNAL(clicked()), Browser::instance()->passManager(), SLOT(yesOnce()));
+	connect(saveButton, SIGNAL(clicked()), passBar, SLOT(close()));
+	connect(saveOnceButton, SIGNAL(clicked()), passBar, SLOT(close()));
+	connect(dontSaveButton, SIGNAL(clicked()), passBar, SLOT(close()));
 	connect(findPreviousButton, SIGNAL(clicked()), this, SLOT(findPrevious()));
 	connect(goToDialAction, SIGNAL(triggered()), this, SLOT(goToDial()));
 	connect(findNextButton, SIGNAL(clicked()), this, SLOT(findNext()));
@@ -349,30 +330,21 @@ void webPage::create(WebView *view)
 	connect(saveAction, SIGNAL(triggered()), this, SLOT(savePage()));
 }
 
-
-#ifdef INTEGRATED_FTP
-
 void webPage::back()
 {
-	if(currentHistoryIndex > 0)
-	{
-		backOrForward = true;
-		currentHistoryIndex--;
-		loadUrl(history.at(currentHistoryIndex));
-	}
+	if(stack->currentIndex() == 1)
+		showPage();
+	else
+		page->back();
 }
 
 void webPage::forward()
 {
-	if(currentHistoryIndex < history.count() - 1)
-	{
-		backOrForward = true;
-		currentHistoryIndex++;
-		loadUrl(history.at(currentHistoryIndex));
-	}
+	if(stack->currentIndex() == 1)
+		showPage();
+	else
+		page->forward();
 }
-
-#endif
 
 
 void webPage::showConsole()
@@ -401,7 +373,14 @@ void webPage::inspectPage()
 
 void webPage::showPage()
 {
+	if(!stack->currentIndex())
+		return;
+
 	stack->setCurrentIndex(0);
+	urlEdit->setText(page->url().toString());
+	urlEdit->setIcon(icon());
+	emit titleChanged(page->title());
+	emit loading(page->title());
 }
 
 void webPage::inCache()
@@ -411,6 +390,12 @@ void webPage::inCache()
 
 void webPage::showDial()
 {
+	if(stack->currentIndex())
+		return;
+
+	if(loadinging)
+		finishLoading(true);
+
 	emit speedDial();
 	stack->setCurrentIndex(1);
 	emit titleChanged("Speed Dial");
@@ -430,13 +415,9 @@ void webPage::paintEvent(QPaintEvent *event)
 	QMainWindow::paintEvent(event);
 }
 
-/*void webPage::showUrl(QString link)
-{
-	currentLink = link;
-}*/
-
 void webPage::startLoading()
 {
+	Browser::instance()->passManager()->getPass();
 	gCompleter->setActive(false);
 	showPage();
 	if (!settings->value("showStop").toBool())
@@ -469,66 +450,6 @@ void webPage::updateUrlIcon(QPixmap pixmap)
 {
 	urlEdit->setIcon(QIcon(pixmap));
 }
-
-#ifdef INTEGRATED_FTP
-
-void webPage::addToHistory()
-{
-	while(history.count() > 50)
-	{
-		history.removeFirst();
-		currentHistoryIndex--;
-		if(history.isEmpty())
-			break;
-	}
-	if(!history.isEmpty())
-	{
-		QMenu *menu = new QMenu(this);
-		for(int i = history.count() - 1; i != -1; i--)
-		{
-			QAction *action = new QAction(iconForUrl(history.at(i)), historyTitle.at(i), this);
-			action->setToolTip(history.at(i));
-			connect(action, SIGNAL(triggered()), this, SLOT(loadHistory()));
-			menu->addAction(action);
-		}
-		backButton->setMenu(menu);
-	}
-	if(backOrForward)
-	{
-		currentHistoryIndex = history.indexOf(url());
-	}
-	if(!backOrForward && (!url().isEmpty() && (history.isEmpty() || history.last() != url())))
-	{
-		if(currentHistoryIndex != history.count() - 1)
-		{
-				QStringList h;
-				for(int i = 0; i != history.count(); i++)
-				{
-					h.append(history.at(i));
-					if(currentHistoryIndex == i) {
-						break;
-					}
-				}
-				history = h;
-		}
-		currentHistoryIndex++;
-		history.append(url());
-		historyTitle.append(title());
-	}
-	if(backOrForward)
-	{
-		backOrForward = false;
-	}
-}
-
-void webPage::loadHistory()
-{
-	backOrForward = true;
-	QAction *action = qobject_cast<QAction *>(sender());
-	loadUrl(action->toolTip());
-}
-
-#endif
 
 void webPage::finishLoading(bool ok)
 {
@@ -590,6 +511,8 @@ void webPage::finishLoading(bool ok)
 	loadinging = false;
 	movie->stop();
 	delete movie;
+
+	Browser::instance()->passManager()->setPage(page->page());
 
 	if(javascriptConsole)
 		javascriptConsole->clear();
@@ -664,30 +587,16 @@ void webPage::loadUrl(QString url)
 		loadUrl(Browser::instance()->bmManager()->urlList().at(Browser::instance()->bmManager()->nameList().indexOf(url)));
 		return;
 	}
-	#ifdef INTEGRATED_FTP
-	else if (url.left(6) == "ftp://")
-	{
-		urlEdit->setText(url);
-		browseFtp(url);
-		return;
-	}
-	#else
 	else if (url.left(6) == "ftp://")
 	{
 		QDesktopServices::openUrl(url);
 		return;
 	}
-	#endif
-	/*else if(url.left(11) == "download ->")
-	{
-		Browser::instance()->dlManager()->downloadFile(QUrl(url.right(url.size() - 11)));
-		return;
-	}*/
 	else if (url.left(10) == "javascript")
 	{
 		QUrl jsurl(url);
-		QString scriptSource = QUrl::fromPercentEncoding(jsurl.toString(Q_FLAGS(QUrl::TolerantMode|QUrl::RemoveScheme)).toAscii());
-		/*cout<<qPrintable(*/page->page()->mainFrame()->evaluateJavaScript(scriptSource).toString()/*)<<"for : "<<qPrintable(scriptSource)<<endl*/;
+		QString scriptSource = QUrl::fromPercentEncoding(jsurl.toString(Q_FLAGS(QUrl::TolerantMode | QUrl::RemoveScheme)).toAscii());
+		page->page()->mainFrame()->evaluateJavaScript(scriptSource);
 		return;
 	}
 	else if (settings->value("google").toBool() && (!url.contains(".") || url.contains(" ")) && !url.contains("/"))
@@ -1027,20 +936,6 @@ void webPage::updateOptions()
 		}
 	}
 	insertToolBarBreak(bookmarkBar);
-	settings->beginGroup("proxy");
-	QNetworkProxy proxy;
-	if (settings->value("enabled", false).toBool()) {
-		if (settings->value("type", 0).toInt() == 0)
-			proxy.setType(QNetworkProxy::Socks5Proxy);
-		else
-			proxy.setType(QNetworkProxy::HttpProxy);
-		proxy.setHostName(settings->value("hostName").toString());
-		proxy.setPort(settings->value("port", 1080).toInt());
-		proxy.setUser(settings->value("userName").toString());
-		proxy.setPassword(settings->value("password").toString());
-	}
-	settings->endGroup();
-	page->page()->networkAccessManager()->setProxy(proxy);
 }
 
 void webPage::findNext()
@@ -1226,107 +1121,6 @@ QIcon webPage::iconForUrl(QString url)
 	return QIcon(":/default.png");
 }
 
-#ifdef INTEGRATED_FTP
-
-void webPage::browseFtp(QString url)
-{
-	ftpUrl = QUrl(url);
-	if(!ftp)
-	{
-		ftp = new QFtp;
-		connect(ftp, SIGNAL(commandFinished(int,bool)), this, SLOT(ftpCommandDone(int,bool)));
-		connect(ftp, SIGNAL(commandStarted(int)), this, SLOT(ftpCommandStarted()));
-		connect(ftp, SIGNAL(listInfo(QUrlInfo)), this, SLOT(ftpListInfo(QUrlInfo)));
-	}
-	if(!isFtp)
-	{
-		ftp->abort();
-		commandsId.append(ftp->connectToHost(QUrl(url).host()));
-		commands.append(QFtp::ConnectToHost);
-		commandsId.append(ftp->login());
-		commands.append(QFtp::Login);
-		commandsId.append(ftp->cd("/"));
-		commands.append(QFtp::Cd);
-	}
-	else
-	{
-		commandsId.append(ftp->cd(QUrl(url).path()));
-		commands.append(QFtp::Cd);
-	}
-	isFtp = true;
-}
-
-void webPage::ftpCommandStarted()
-{
-	startLoading();
-}
-
-void webPage::ftpCommandDone(int id, bool error)
-{
-	int index = commandsId.indexOf(id);
-	if(index == -1)
-	{
-		cout<<"failed !"<<endl;
-		return;
-	}
-	if(commands.at(index) == QFtp::Cd)
-	{
-		ftpInfo.clear();
-		commandsId.append(ftp->list());
-		commands.append(QFtp::List);
-	}
-	else if(commands.at(index) == QFtp::List)
-	{
-		page->setHtml(generateFtpOutput());
-	}
-
-	commandsId.removeAt(index);
-	commands.removeAt(index);
-	if(loadinging)
-	{
-		finishLoading(!error);
-	}
-}
-
-QString webPage::generateFtpOutput()
-{
-	QString prev = ftpUrl.path().left(ftpUrl.path().lastIndexOf("/"));
-	if(ftpUrl.path().length() <= 1)
-	{
-		prev = history.at(history.count() - 2);
-	}
-	QString html = "<title>" + ftpUrl.host() + "</title><h1>" + ftpUrl.host() + "</h1>" + "<td><a href=\"" + prev + "\"> .. </a></td><td><table>";
-	foreach(QUrlInfo info, ftpInfo)
-	{
-		html.append("<tr>");
-		QUrl url = ftpUrl;
-		url.setPath(ftpUrl.path() + info.name());
-		if(info.isFile())
-		{
-			//cout<<qPrintable(url.toString());
-			url = QUrl("download ->" + url.toString());
-		}
-		html.append("<td><a href=\"" + url.toString() + "\"> " + info.name() + " </a></td><td>");
-		if(info.isDir())
-		{
-			html.append(" REP ");
-		}
-		else
-		{
-			html.append(" FILE ");
-		}
-		html.append("</td></tr>");
-	}
-	html.append("</table>");
-	return html;
-}
-
-void webPage::ftpListInfo(QUrlInfo info)
-{
-	ftpInfo.append(info);
-}
-
-#endif
 
 void UrlLineEdit::load()
 {

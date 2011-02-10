@@ -1,0 +1,1 @@
+copy release\Naveo.exe ..\bin\Naveo.exe

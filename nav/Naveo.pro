@@ -31,7 +31,6 @@ HEADERS += Browser.h \
 	helper.h \
 	page.h \
 	synchronizer.h \
-	../../gan_/gan.h \
 	bookmarktree.h \
 	speeddial.h \
 	about.h \
@@ -41,7 +40,10 @@ HEADERS += Browser.h \
 	pluginmanager.h \
 	plugindialog.h \
 	dockwidget.h \
-	lib.h
+	lib.h \
+	passwordmanager.h \
+	networkaccessmanager.h \
+    formwindow.h
 FORMS += ui/settings.ui
 SOURCES += Browser.cpp \
 	CookieJar.cpp \
@@ -64,11 +66,13 @@ SOURCES += Browser.cpp \
 	speeddial.cpp \
 	about.cpp \
 	urldialog.cpp \
-	../../gan_/gan.cpp \
 	javascriptconsole.cpp \
 	cleardialog.cpp \
 	pluginmanager.cpp \
 	plugindialog.cpp \
-	dockwidget.cpp
+	dockwidget.cpp \
+	passwordmanager.cpp \
+	networkaccessmanager.cpp \
+    formwindow.cpp
 RESOURCES += ressources/ressources.qrc
 win32:RC_FILE *= ressources/Ress.rc

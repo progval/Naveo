@@ -24,6 +24,7 @@ ClearDialog::ClearDialog(QWidget *parent) :
 	history = new QCheckBox(tr("Historique de navigation"));
 	bookMarks = new QCheckBox(tr("Favoris"));
 	cookies = new QCheckBox(tr("Cookies"));
+	pass = new QCheckBox(tr("Mots de passe enregistés"));
 	downloads = new QCheckBox(tr("Historique des téléchargements"));
 	cached = new QCheckBox(tr("Cache web"));
 	icons = new QCheckBox(tr("Favicones des pages visitées"));
@@ -42,6 +43,7 @@ ClearDialog::ClearDialog(QWidget *parent) :
 	mainLay->addWidget(history);
 	mainLay->addWidget(bookMarks);
 	mainLay->addWidget(cookies);
+	mainLay->addWidget(pass);
 	mainLay->addWidget(downloads);
 	mainLay->addWidget(cached);
 	mainLay->addWidget(icons);
@@ -78,6 +80,9 @@ void ClearDialog::clearData()
 
 	if(cookies->isChecked())
 		Browser::instance()->cJar()->clear();
+
+	if(cookies->isChecked())
+		Browser::instance()->passManager()->clear();
 
 	if(downloads->isChecked())
 		Browser::instance()->dlManager()->clearDownloads();

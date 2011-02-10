@@ -1,6 +1,6 @@
-#define VERSION "0.1 dev"
+#define VERSION "0.1.01 dev"
 
-#undef USE_GAN_H
+//#define USE_GAN_H
 
 #ifdef USE_GAN_H
 	#include "..\..\gan_\gan.h"

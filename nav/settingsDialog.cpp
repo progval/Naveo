@@ -30,7 +30,7 @@ settingDialog::settingDialog(Synchronizer *synchronizer, PluginManager *pm)
 		checkBox_13->setEnabled(true);
 	}
 	#endif
-	QStringList itemList = settings.value("themes").toStringList();
+	QStringList itemList;
 	if (itemList.isEmpty())
 	{
 		QDir dir = QDir(qApp->applicationDirPath());
@@ -61,6 +61,7 @@ settingDialog::settingDialog(Synchronizer *synchronizer, PluginManager *pm)
 			listWidget_3->item(listWidget_3->count() - 1)->setFlags(Qt::NoItemFlags);
 		}
 	}
+	listWidget_4->setCurrentRow(0);
 	pushButton_7->setEnabled(false);
 	connect(synchronizer, SIGNAL(imported()), this, SLOT(updateAll()));
 	connect(synchronizer, SIGNAL(loggedIn()), this, SLOT(updateAll()));

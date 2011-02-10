@@ -27,7 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "httpget.h"
 #include "cookiejar.h"
 #include "mainWin.h"
+#include "networkaccessmanager.h"
 #include "bookmarkmanager.h"
+#include "passwordmanager.h"
 #include "historymanager.h"
 #include "synchronizer.h"
 #include "speeddial.h"
@@ -80,6 +82,8 @@ class Browser : public QApplication
 		QString iniFile(QString file = QString("Options.ini"));
 		QString currentSession();
 		void setQuitOnClose(bool c);
+		PasswordManager *passManager();
+		NetworkAccessManager *accessManager();
 
 		static QString getUrl(QWidget *parent, QString title, QString text = QString());
 
@@ -121,6 +125,8 @@ class Browser : public QApplication
 		Synchronizer *synchronizer;
 		bool quitOnClose;
 		QSystemTrayIcon *updateIcon;
+		PasswordManager *pass;
+		NetworkAccessManager *networkAccessManager;
 
 };
 

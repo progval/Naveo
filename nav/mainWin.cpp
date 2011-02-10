@@ -67,16 +67,6 @@ MainWin::MainWin(QString fileName)
 	connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabChanged()));
 	connect(settingsButton, SIGNAL(clicked()), this, SLOT(showTabSettings()));
 	connect(Browser::instance(), SIGNAL(settingsChanged()), this, SLOT(updateSettings()));
-	#ifdef CUSTOM_WINDOW
-		QPoint pos = this->pos();
-		if(transluent) {
-			setWindowFlags(Qt::CustomizeWindowHint);
-		} else {
-			setWindowFlags(Qt::FramelessWindowHint);
-		}
-		move(pos);
-		show();
-	#endif
 }
 
 void MainWin::grab(QPoint p)
@@ -86,16 +76,6 @@ void MainWin::grab(QPoint p)
 void MainWin::paintEvent(QPaintEvent *event)
 {
 	QTabWidget::paintEvent(event);
-	#ifdef CUSTOM_WINDOW
-		if(!transluent)
-		{
-			QStylePainter stylePainter(this);
-			QStyleOptionTitleBar option;
-			option.initFrom(this);
-			option.rect = QRect(-6, -6, width() + 12, height() + 12);
-			stylePainter.drawComplexControl(QStyle::CC_TitleBar, option);
-		}
-	#endif
 }
 
 
@@ -135,8 +115,7 @@ void MainWin::setup(QString fileName)
 	}
 	else
 	{
-		newTab(/*"file:///" + */fileName);
-		//cout<<qPrintable(/*"file:///" + */fileName)<<endl<<"openned"<<endl;
+		newTab(fileName);
 	}
 }
 
@@ -176,21 +155,13 @@ void MainWin::setTabTitle(QString title)
 {
 	int index = indexOf(qobject_cast<QWidget *>(sender()));
 	setTabToolTip(index, title);
-	//QSettings settings(Browser::instance()->iniFile(), QSettings::IniFormat);
-	/*if (!settings.value("noText").toBool())
-	{*/
-		if (title.size() > 32)
-		{
-			title = title.left(29) + "...";
-		}
-		setTabText(index, title);
-	/*}
-	else
+	/*if (title.size() > 29)
 	{
-		setTabText(index, "");
+		title = title.left(26) + "...";
 	}*/
+	setTabText(index, title);
 	tabChanged();
-	updateNewTabButtonPos();
+	//updateNewTabButtonPos();
 }
 
 void MainWin::tabChanged()
@@ -205,25 +176,6 @@ void MainWin::tabChanged()
 	{
 		setWindowTitle(title + " - Naveo");
 	}
-	/*if (settings.value("noText").toBool())
-	{
-		if (tabBar()->tabButton(currentIndex(), QTabBar::RightSide))
-		{
-			int a = 0;
-			while(a != count())
-			{
-				tabBar()->tabButton(a, QTabBar::RightSide)->hide();
-				a++;
-			}
-			tabBar()->tabButton(currentIndex(), QTabBar::RightSide)->show();
-			tabBar()->setStyleSheet("QTabBar::tab:!selected {width:28 px;}"
-								"QTabBar::tab:selected {width:50 px;}");
-		}
-		else
-		{
-			QTimer::singleShot(50, this, SLOT(tabChanged()));
-		}
-	}*/
 }
 
 void MainWin::closeTab()
@@ -280,36 +232,13 @@ void MainWin::updateSettings()
 		tabBar()->tabButton(a, QTabBar::RightSide)->show();
 		a++;
 	}
-	/*if (settings.value("noText").toBool())
+	a = 0;
+	while(a != count())
 	{
-		int a = 0;
-		while(a != count())
-		{
-			setTabText(a, "");
-			a++;
-		}
-		tabBar()->setStyleSheet("QTabBar::tab:!selected {width:28 px;}"
-								"QTabBar::tab:selected {width:50 px;}");
-		int b = 0;
-		while(b != count())
-		{
-			if (b != currentIndex())
-			{
-				tabBar()->tabButton(b, QTabBar::RightSide)->hide();
-			}
-			b++;
-		}
+		setTabText(a, tabToolTip(a));
+		a++;
 	}
-	else
-	{*/
-		a = 0;
-		while(a != count())
-		{
-			setTabText(a, tabToolTip(a));
-			a++;
-		}
-		 tabBar()->setStyleSheet("");
-	//}
+	//tabBar()->setStyleSheet("");
 	QString title = tabToolTip(currentIndex());
 	if (settings.value("private").toBool())
 	{
@@ -320,16 +249,6 @@ void MainWin::updateSettings()
 		setWindowTitle(title + " - Naveo");
 	}
 	updateNewTabButtonPos();
-	#ifdef CUSTOM_WINDOW
-		QPoint pos = this->pos();
-		if(transluent) {
-			setWindowFlags(Qt::CustomizeWindowHint);
-		} else {
-			setWindowFlags(Qt::FramelessWindowHint);
-		}
-		move(pos);
-		show();
-	#endif
 }
 
 webPage *MainWin::createPage()
@@ -388,6 +307,7 @@ void MainWin::setFullScreen(bool enabled)
 		newTabButton->hide();
 		tabBar()->hide();
 		setWindowState(Qt::WindowFullScreen);
+		setAutoFillBackground(false);
 	}
 	else
 	{
@@ -395,6 +315,8 @@ void MainWin::setFullScreen(bool enabled)
 		newTabButton->show();
 		tabBar()->show();
 		setWindowState(Qt::WindowNoState);
+		QSettings settings(Browser::instance()->iniFile(), QSettings::IniFormat);
+		setAutoFillBackground(settings.value("transparency").toBool());
 	}
 }
 
@@ -484,16 +406,8 @@ QIcon MainWin::iconForUrl(QString url)
 
 int MainWin::addTab(QWidget *tab, QString label)
 {
-	//QSettings settings(Browser::instance()->iniFile(), QSettings::IniFormat);
 	int i = 0;
-	/*if(settings.value("noText").toString() == "true")
-	{
-		i = QTabWidget::addTab(tab, "");
-	}
-	else
-	{*/
-		i = QTabWidget::addTab(tab, label);
-	//}
+	i = QTabWidget::addTab(tab, label);
 	setTabToolTip(i, label);
 	QTabWidget::setTabIcon(i, QIcon(":/speedDial.png"));
 	QPushButton *closeTabButton = new QPushButton("");
@@ -504,25 +418,13 @@ int MainWin::addTab(QWidget *tab, QString label)
 	closeTabButton->setFixedSize(QSize(17, 17));
 	connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
 	tabBar()->setTabButton(i, QTabBar::RightSide, closeTabButton);
-	/*if (settings.value("noText").toBool())
-	{
-		closeTabButton->hide();
-	}*/
 	return i;
 }
 
 int MainWin::insertTab(int index, QWidget *tab, QString label)
 {
-	//QSettings settings(Browser::instance()->iniFile(), QSettings::IniFormat);
 	int i = 0;
-	/*if(settings.value("noText").toString() == "true")
-	{
-		i = QTabWidget::insertTab(index, tab, "");
-	}
-	else
-	{*/
-		i = QTabWidget::insertTab(index, tab, label);
-	//}
+	i = QTabWidget::insertTab(index, tab, label);
 	setTabToolTip(i, label);
 	QTabWidget::setTabIcon(i, QIcon(":/speedDial.png"));
 	QPushButton *closeTabButton = new QPushButton("");
@@ -533,23 +435,16 @@ int MainWin::insertTab(int index, QWidget *tab, QString label)
 	closeTabButton->setFixedSize(QSize(17, 17));
 	connect(closeTabButton, SIGNAL(clicked()), this, SLOT(closeTab()));
 	tabBar()->setTabButton(i, QTabBar::RightSide, closeTabButton);
-	/*if (settings.value("noText").toBool())
-	{
-		closeTabButton->hide();
-	}*/
 	return i;
 }
 
 void MainWin::updateNewTabButtonPos()
 {
-	int pix = 0;
-	while(tabBar()->tabAt(QPoint(pix, 0)) != -1 && pix < width())
-	{
-		pix++;
-	}
-	pix += 10 + newTabButton->width();
-	newTabButton->move(QPoint(pix, 1));
-	//newTabButton->show();
+	int w = 0;
+	for(int i = 0; i != count(); i++)
+		w += tabBar()->tabRect(i).width();
+	w += 10 + newTabButton->width();
+	newTabButton->move(QPoint(w, 1));
 }
 
 void MainWin::tabInserted(int index)
@@ -565,12 +460,6 @@ void MainWin::openFtp(QString url)
 }
 
 
-
-
-
-
-
-
 void TabBar::contextMenuEvent(QContextMenuEvent *event)
 {
 	QMenu menu;
@@ -581,4 +470,22 @@ void TabBar::contextMenuEvent(QContextMenuEvent *event)
 	menu.addAction(&action);
 	menu.addAction(&action2);
 	menu.exec(mapToGlobal(event->pos()));
+}
+
+QSize TabBar::tabSizeHint(int index) const
+{
+	int w = 0;
+	for(int i = 0; i != count(); i++)
+		w += tabRect(i).width();
+
+	if(w > width() - 50) {
+		return QSize((width() - 50) / count(), QTabBar::tabSizeHint(index).height());
+		cout<<"-"<<endl;
+	}
+
+	QSize hint = QTabBar::tabSizeHint(index);
+	if(hint.width() > 200)
+		hint.setWidth(200);
+
+	return hint;
 }

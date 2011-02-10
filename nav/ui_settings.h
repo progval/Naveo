@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'settings.ui'
 **
-** Created: Sun Jan 2 10:51:55 2011
-**      by: Qt User Interface Compiler version 4.6.3
+** Created: Thu 10. Feb 18:26:41 2011
+**      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -1039,7 +1039,7 @@ public:
         const bool __sortingEnabled = listWidget_4->isSortingEnabled();
         listWidget_4->setSortingEnabled(false);
         QListWidgetItem *___qlistwidgetitem = listWidget_4->item(0);
-        ___qlistwidgetitem->setText(QApplication::translate("Dialog", "Param\303\250tres", 0, QApplication::UnicodeUTF8));
+        ___qlistwidgetitem->setText(QApplication::translate("Dialog", "G\303\251n\303\251ral", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem1 = listWidget_4->item(1);
         ___qlistwidgetitem1->setText(QApplication::translate("Dialog", "Affichage", 0, QApplication::UnicodeUTF8));
         QListWidgetItem *___qlistwidgetitem2 = listWidget_4->item(2);

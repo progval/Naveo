@@ -186,7 +186,11 @@ bool Synchronizer::checkPass()
 
 QByteArray Synchronizer::hash(QByteArray array)
 {
-	return gan_::encryption::hash(array);
+	#ifdef USE_GAN_H
+		return gan_::encryption::hash(array);
+	#else
+		return QCryptographicHash::hash(array, QCryptographicHash::Md5).toHex();
+	#endif
 }
 
 void Synchronizer::import()
@@ -198,78 +202,83 @@ void Synchronizer::import()
 		progress->open();
 	}
 
-	#ifndef FROM_FILES
-		bool i = false;
-	#endif
+	bool i = false;
 
 
 	cout<<"settings"<<endl;
-	#ifndef FROM_FILES
-		file = new QFile(qApp->applicationDirPath() + "/Options_");
-		i = file->open(QIODevice::WriteOnly);
-		ftp->get("1_", file);
-		while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
-		{
-			Browser::instance()->processEvents();
-		}
-		file->close();
-		if(ftp->error())
-		{
-			cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
-		}
-		else
-		{
-	#else
-		{
-	#endif
+	file = new QFile(qApp->applicationDirPath() + "/Options_");
+	i = file->open(QIODevice::WriteOnly);
+	ftp->get("1_", file);
+	while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
+	{
+		Browser::instance()->processEvents();
+	}
+	file->close();
+	if(ftp->error())
+	{
+		cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
+	}
+	else
+	{
 		quickWrite("Options.ini", encryptFromFile("Options_"));
 	}
 
 
 	cout<<"cookies"<<endl;
-	#ifndef FROM_FILES
-		file = new QFile(qApp->applicationDirPath() + "/cookies_");
-		i = file->open(QIODevice::WriteOnly);
-		ftp->get("2_", file);
-		while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
-		{
-			Browser::instance()->processEvents();
-		}
-		file->close();
-		if(ftp->error())
-		{
-			cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
-		}
-		else
-		{
-	#else
-		{
-	#endif
+	file = new QFile(qApp->applicationDirPath() + "/cookies_");
+	i = file->open(QIODevice::WriteOnly);
+	ftp->get("2_", file);
+	while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
+	{
+		Browser::instance()->processEvents();
+	}
+	file->close();
+	if(ftp->error())
+	{
+		cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
+	}
+	else
+	{
 		quickWrite("cookies.ini", encryptFromFile("cookies_"));
 	}
 
 
 
 	cout<<"bookmarks"<<endl;
-	#ifndef FROM_FILES
-		file = new QFile(qApp->applicationDirPath() + "/BookMarks_");
-		i = file->open(QIODevice::WriteOnly);
-		ftp->get("3_", file);
-		while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
-		{
-			Browser::instance()->processEvents();
-		}
-		file->close();
-		if(ftp->error())
-		{
-			cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
-		}
-		else
-		{
-	#else
-		{
-	#endif
+	file = new QFile(qApp->applicationDirPath() + "/BookMarks_");
+	i = file->open(QIODevice::WriteOnly);
+	ftp->get("3_", file);
+	while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
+	{
+		Browser::instance()->processEvents();
+	}
+	file->close();
+	if(ftp->error())
+	{
+		cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
+	}
+	else
+	{
 		quickWrite("BookMarks.ini", encryptFromFile("BookMarks_"));
+	}
+
+	cout<<"forms"<<endl;
+	file = new QFile(qApp->applicationDirPath() + "/forms_");
+	i = file->open(QIODevice::WriteOnly);
+	ftp->get("4_", file);
+	while(ftp->currentCommand() == QFtp::Get && i && !ftp->error())
+	{
+		Browser::instance()->processEvents();
+	}
+	file->close();
+
+	if(ftp->error())
+	{
+		cout<<"error : "<<qPrintable(ftp->errorString())<<endl;
+	}
+	else
+	{
+		quickWrite("forms.txt", encryptFromFile("forms_"));
 	}
 
 
@@ -291,59 +300,62 @@ void Synchronizer::exportSettings()
 			progress->setLabelText(tr("Exportation ..."));
 			progress->open();
 		}
-		cout<<"export";
-		#ifdef FROM_FILES
-			cout<<"ing in files";
-		#endif
-		cout<<endl;
+		cout<<"export"<<endl;
 
-		file = new QFile(qApp->applicationDirPath() + "/Options.ini");
+		file = new QFile(Browser::instance()->iniFile());
 		file->open(QIODevice::ReadOnly);
 
-		#ifndef FROM_FILES
-			ftp->put(crypt(file->readAll()), "1_");
-			cout<<"hosting settings file"<<endl;
-			while(ftp->currentCommand() == QFtp::Put && !ftp->error())
-			{
-				Browser::instance()->processEvents();
-			}
-		#else
-			quickWrite("Options_", crypt(file->readAll()));
-		#endif
-
+		ftp->put(crypt(file->readAll()), "1_");
+		cout<<"hosting settings file"<<endl;
+		while(ftp->currentCommand() == QFtp::Put && !ftp->error())
+		{
+			Browser::instance()->processEvents();
+		}
 		file->close();
 
 
-		file = new QFile(qApp->applicationDirPath() + "/cookies.txt");
+		file = new QFile(Browser::instance()->iniFile("cookies.txt"));
 		file->open(QIODevice::ReadOnly);
 
-		#ifndef FROM_FILES
+		#ifdef USE_GAN_H
+			ftp->put(crypt(gan_::encryption::uncrypt(file->readAll())), "2_");
+		#else
 			ftp->put(crypt(file->readAll()), "2_");
-			cout<<"hosting cookies"<<endl;
-			while(ftp->currentCommand() == QFtp::Put && !ftp->error())
-			{
-				Browser::instance()->processEvents();
-			};
-		#else
-			quickWrite("cookies_", crypt(file->readAll()));
 		#endif
+		cout<<"hosting cookies"<<endl;
+		while(ftp->currentCommand() == QFtp::Put && !ftp->error())
+		{
+			Browser::instance()->processEvents();
+		};
 
 		file->close();
 
 
-		file = new QFile(qApp->applicationDirPath() + "/BookMarks.ini");
+		file = new QFile(Browser::instance()->iniFile("BookMarks.ini"));
 		file->open(QIODevice::ReadOnly);
 
-		#ifndef FROM_FILES
-			ftp->put(crypt(file->readAll()), "3_");
-			cout<<"hosting bookMarks"<<endl;
-			while(ftp->currentCommand() == QFtp::Put && !ftp->error())
-			{
-				Browser::instance()->processEvents();
-			}
+		ftp->put(crypt(file->readAll()), "3_");
+		cout<<"hosting bookMarks"<<endl;
+		while(ftp->currentCommand() == QFtp::Put && !ftp->error())
+		{
+			Browser::instance()->processEvents();
+		}
+
+		file->close();
+
+		file = new QFile(Browser::instance()->iniFile("forms.txt"));
+		file->open(QIODevice::ReadOnly);
+
+		#ifdef USE_GAN_H
+			ftp->put(crypt(gan_::encryption::uncrypt(file->readAll())), "4_");
 		#else
-			quickWrite("BookMarks_", crypt(file->readAll()));
+			ftp->put(crypt(file->readAll()), "4_");
 		#endif
+		cout<<"hosting forms"<<endl;
+		while(ftp->currentCommand() == QFtp::Put && !ftp->error())
+		{
+			Browser::instance()->processEvents();
+		}
 
 		file->close();
 
@@ -608,6 +620,7 @@ QByteArray Synchronizer::encryptFromFile(QString fileName)
 void Synchronizer::quickWrite(QString fileName, QByteArray array)
 {
 	QFile f(Browser::instance()->iniFile(fileName));
+	cout<<qPrintable(Browser::instance()->iniFile(fileName))<<endl;
 	f.open(QIODevice::WriteOnly);
 	f.write(array);
 	f.close();

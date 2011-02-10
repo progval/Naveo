@@ -38,6 +38,7 @@ class ClearDialog : public QDialog
 		QCheckBox *history;
 		QCheckBox *bookMarks;
 		QCheckBox *cookies;
+		QCheckBox *pass;
 		QCheckBox *downloads;
 		QCheckBox *cached;
 		QCheckBox *icons;

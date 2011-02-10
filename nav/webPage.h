@@ -27,11 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "googlesuggest.h"
 #include "cookiejar.h"
 #include "javascriptconsole.h"
+#include "passwordmanager.h"
 #include "dockwidget.h"
 
 #include <iostream>
-
-//#define INTEGRATED_FTP
 
 class MainWin;
 class UrlLineEdit;
@@ -55,9 +54,6 @@ class webPage : public QMainWindow
 		QMenu *menu();
 		QIcon icon();
 		QIcon iconForUrl(QString url);
-		#ifdef INTEGRATED_FTP
-		void browseFtp(QString url);
-		#endif
 
 	public slots:
 		void startLoading();
@@ -97,14 +93,8 @@ class webPage : public QMainWindow
 		void zoomOut();
 		void restoreZoom();
 		void savePage();
-		#ifdef  INTEGRATED_FTP
 		void back();
 		void forward();
-		void loadHistory();
-		void ftpCommandStarted();
-		void ftpCommandDone(int id, bool error);
-		void ftpListInfo(QUrlInfo info);
-		#endif
 
 	signals:
 		void loading(QString url);
@@ -116,9 +106,6 @@ class webPage : public QMainWindow
 		void needPrint(QPrinter *printer);
 		void openTab(webPage *page);
 		void setFullScreen(bool enabled);
-		#ifdef INTEGRATED_FTP
-		void openFtp(QString url);
-		#endif
 
 	protected:
 		void keyPressEvent(QKeyEvent *event);
@@ -130,12 +117,6 @@ class webPage : public QMainWindow
 	private:
 		void create(WebView *view);
 		QString getFileName(QNetworkReply *reply);
-		#ifdef INTEGRATED_FTP
-		QString generateFtpOutput();
-		void addToHistory();
-		QFtp *ftp;
-		bool isFtp;
-		#endif
 		QMenu *toolsMenu;
 		bool isADownload;
 		bool noError;
@@ -177,19 +158,10 @@ class webPage : public QMainWindow
 		QStackedWidget *stack;
 		SpeedDial *dial;
 		JavascriptConsole *javascriptConsole;
+		QToolBar *passBar;
 		QAction *synchroAction;
 		QAction *importAction;
 		QAction *exportAction;
-		#ifdef INTEGRATED_FTP
-		QUrl ftpUrl;
-		QList<int> commandsId;
-		QList<QFtp::Command> commands;
-		QList<QUrlInfo> ftpInfo;
-		QStringList history;
-		QStringList historyTitle;
-		int currentHistoryIndex;
-		bool backOrForward;
-		#endif
 };
 
 class UrlLineEdit : public QLineEdit

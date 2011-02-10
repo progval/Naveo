@@ -60,6 +60,7 @@ Browser::Browser(int &argc, char **argv)
 		loadPlugins();
 
 		synchronizer = new Synchronizer;
+		networkAccessManager = new NetworkAccessManager;
 
 		fileName = "";
 		if (argc >= 2)
@@ -91,6 +92,8 @@ Browser::Browser(int &argc, char **argv)
 		bookMarkManager = new BookMarkManager;
 		historyManager = new HistoryManager;
 		jar = new CookieJar(this);
+		pass = new PasswordManager;
+		networkAccessManager->setCookieJar(jar);
 
 		HttpGet *getter = new HttpGet;
 		updateIcon = 0;
@@ -115,7 +118,7 @@ Browser *Browser::instance()
 
 void Browser::initWebSettings()
 {
-	QWebSettings * const webSettings = QWebSettings::globalSettings();
+	QWebSettings *webSettings = QWebSettings::globalSettings();
 	webSettings->setAttribute(QWebSettings::AutoLoadImages, settings->value("image").toBool());
 	webSettings->setAttribute(QWebSettings::PluginsEnabled, settings->value("flash", true).toBool());
 	webSettings->setAttribute(QWebSettings::JavascriptEnabled , settings->value("javascript").toBool());
@@ -123,6 +126,26 @@ void Browser::initWebSettings()
 	webSettings->setAttribute(QWebSettings::JavaEnabled, settings->value("javascript").toBool());
 	webSettings->setAttribute(QWebSettings::PrivateBrowsingEnabled , settings->value("private").toBool());
 	QWebSettings::setWebGraphic(QWebSettings::MissingPluginGraphic, QPixmap(":/plug.png"));
+	settings->beginGroup("proxy");
+	QNetworkProxy proxy;
+	if (settings->value("enabled", false).toBool())
+	{
+		if (settings->value("type", 0).toInt() == 0)
+			proxy.setType(QNetworkProxy::Socks5Proxy);
+		else
+			proxy.setType(QNetworkProxy::HttpProxy);
+		proxy.setHostName(settings->value("hostName").toString());
+		proxy.setPort(settings->value("port", 1080).toInt());
+		proxy.setUser(settings->value("userName").toString());
+		proxy.setPassword(settings->value("password").toString());
+	}
+	settings->endGroup();
+	networkAccessManager->setProxy(proxy);
+}
+
+NetworkAccessManager *Browser::accessManager()
+{
+	return networkAccessManager;
 }
 
 void Browser::showHelp()
@@ -352,6 +375,7 @@ void Browser::close(int exitCode)
 		historyManager->clear();
 		manager->clearDownloads();
 		jar->clear();
+		pass->clear();
 	}
 	saveSettings();
 
@@ -506,6 +530,7 @@ BookMarkManager *Browser::bmManager()
 
 void Browser::saveSettings()
 {
+	pass->save();
 	bmManager()->saveSettings();
 	hManager()->save();
 }
@@ -515,13 +540,20 @@ settingDialog *Browser::settingsManager()
 	return new settingDialog(synchronizer, plugs);
 }
 
+PasswordManager *Browser::passManager()
+{
+	return pass;
+}
+
 void Browser::execSettings()
 {
+	saveSettings();
 	settingDialog *settingDial = settingsManager();
 	connect(settingDial, SIGNAL(clearHistory()), historyManager, SLOT(clear()));
 	connect(settingDial, SIGNAL(clearCookies()), jar, SLOT(clear()));
 	connect(settingDial, SIGNAL(restart()), this, SLOT(restart()));
 	plugs->settingsOpenned(settingDial);
+	pass->load();
 	settingDial->exec();
 	plugs->updateSettings();
 	update();
