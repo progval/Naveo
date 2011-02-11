@@ -5,8 +5,9 @@
 
 #TEMPLATE = app
 
-CONFIG += dll
-TEMPLATE = lib
+TEMPLATE = app
+#CONFIG += dll
+#TEMPLATE = lib
 
 TARGET =
 QT += webkit
