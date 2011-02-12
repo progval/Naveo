@@ -53,7 +53,7 @@ Browser::Browser(int &argc, char **argv)
 
 		setWindowIcon(QIcon(":/icon.png"));
 
-		settings = new QSettings(applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+		settings = new QSettings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 
 		verifySettings();
 

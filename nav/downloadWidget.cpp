@@ -28,7 +28,7 @@ DownloadWidget::DownloadWidget(QString Url, QString Local, QString State, QStrin
 	waiting = true;
 	progress = new QProgressBar;
 	progress->setStyle(new QCleanlooksStyle);
-	QSettings settings(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings settings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QString themeDir = settings.value("theme").toString();
 	layout = new QHBoxLayout;
 	layout->setContentsMargins(0, 1, 0, 1);

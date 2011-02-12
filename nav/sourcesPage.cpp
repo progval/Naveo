@@ -31,7 +31,7 @@ sourcesEditor::sourcesEditor()
 
 void sourcesEditor::create()
 {
-	QSettings settings(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings settings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	setAutoFillBackground(!settings.value("toolbarTranparency").toBool());
 
 	edit = new sourcesPage;

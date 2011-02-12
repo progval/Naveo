@@ -30,7 +30,7 @@ void PluginManager::PluginManager::init()
 	if(!dir.cd("plugins"))
 		dir.mkdir("plugins");
 
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QStringList removed = set.value("toRemove", QStringList()).toStringList();
 	QStringList activated = set.value("activated", QStringList()).toStringList();
 	foreach(QString path, dir.entryList(QDir::Files))
@@ -179,7 +179,7 @@ void PluginManager::quit()
 			plugins[i].lib->unload();
 		}
 	}
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QStringList a = set.value("activated", QStringList()).toStringList();
 	a.removeDuplicates();
 	set.setValue("activated", a);
@@ -269,7 +269,7 @@ void PluginManager::execSettings(QString name)
 
 void PluginManager::activate(QString name)
 {
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QStringList a = set.value("activated", QStringList()).toStringList();
 	for(int i = 0; i != plugins.count(); i++)
 	{
@@ -326,7 +326,7 @@ void PluginManager::activate(QString name)
 
 void PluginManager::remove(QString name)
 {
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QStringList r = set.value("toRemove", QStringList()).toStringList();
 	for(int i = 0; i != plugins.count(); i++)
 	{
@@ -402,7 +402,7 @@ void PluginManager::install(QString name, QString url)
 		getter->cancel();
 		return;
 	}
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QStringList a = set.value("activated", QStringList()).toStringList();
 	a.append(name);
 	set.setValue("activated", a);

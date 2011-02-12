@@ -1124,7 +1124,7 @@ QIcon webPage::iconForUrl(QString url)
 
 void UrlLineEdit::load()
 {
-	QSettings settings(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings settings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	motor = settings.value("motor", motor).toString();
 	motorButton->setStyleSheet("QPushButton{background-image: url(':/" + motor + ".png');}"
 							  "QPushButton::pressed{border : none; background-image: url(':/" + motor + ".png');}"
@@ -1134,7 +1134,7 @@ void UrlLineEdit::load()
 
 void UrlLineEdit::change()
 {
-	QSettings settings(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings settings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	settings.setValue("motor", motor);
 	motorButton->setStyleSheet("QPushButton{background-image: url(':/" + motor + ".png');}"
 							  "QPushButton::pressed{border : none; background-image: url(':/" + motor + ".png');}"

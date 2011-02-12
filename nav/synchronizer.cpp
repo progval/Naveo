@@ -36,7 +36,7 @@ Synchronizer::Synchronizer()
 	connect(ftp, SIGNAL(listInfo(QUrlInfo)), this, SLOT(addToList(QUrlInfo)));
 	//connect(this, SIGNAL(needPass()), this, SLOT(dlPass()));
 	serverIndex = 0;
-	settings = new QSettings(qApp->applicationDirPath() + "/server.txt", QSettings::IniFormat);
+	settings = new QSettings(naveoConfigurationPath + "/server.txt", QSettings::IniFormat);
 	names<<settings->value("list").toStringList();
 
 	#ifdef USE_GAN_H
@@ -62,7 +62,7 @@ Synchronizer::Synchronizer()
 		names.push_front(tr("Serveur officiel"));
 	#endif
 
-	settings = new QSettings(qApp->applicationDirPath() + "/synchro.ini", QSettings::IniFormat);
+	settings = new QSettings(naveoConfigurationPath + "/synchro.ini", QSettings::IniFormat);
 
 
 

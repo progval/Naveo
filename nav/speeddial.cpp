@@ -127,13 +127,13 @@ void LinkButton::image(bool ok)
 		//cout<<"loading finished for "<<qPrintable(url)<<endl;
 
 		// add pixmap to cache
-		QSettings set(qApp->applicationDirPath() + "/cache/speedDial/cache.ini", QSettings::IniFormat);
+		QSettings set(naveoConfigurationPath + "/cache/speedDial/cache.ini", QSettings::IniFormat);
 		QString fileName = "0";
-		for(int i = 1; QFile(QString(qApp->applicationDirPath() + "/cache/speedDial/%1.png").arg(i)).exists(); i++)
+		for(int i = 1; QFile(QString(naveoConfigurationPath + "/cache/speedDial/%1.png").arg(i)).exists(); i++)
 		{
 			fileName = QString("%1").arg(i);
 		}
-		if(pix->save(qApp->applicationDirPath() + "/cache/speedDial/" + fileName + ".png"))
+		if(pix->save(naveoConfigurationPath + "/cache/speedDial/" + fileName + ".png"))
 		{
 			QStringList cache = set.value("cache", QStringList()).toStringList();
 			cache<<url;
@@ -235,7 +235,7 @@ void LinkButton::paintEvent(QPaintEvent *event)
 
 void LinkButton::createPage()
 {
-	QSettings set(qApp->applicationDirPath() + "/cache/speedDial/cache.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/cache/speedDial/cache.ini", QSettings::IniFormat);
 	if(set.value("cache", QStringList()).toStringList().contains(url))
 	{
 		pix = new QPixmap(qApp->applicationDirPath() + "/cache/speedDial/" + set.value("pix", QStringList()).toStringList().at(set.value("cache", QStringList()).toStringList().indexOf(url)) + ".png");

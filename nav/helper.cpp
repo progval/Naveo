@@ -45,7 +45,7 @@ void Helper::closeEvent(QCloseEvent */*event*/)
 
 void Helper::updateView()
 {
-	QSettings settings(qApp->applicationDirPath() + "/help/help_" + QLocale::system().name().left(2) +".ini", QSettings::IniFormat);
+	QSettings settings(naveoConfigurationPath + "/help/help_" + QLocale::system().name().left(2) +".ini", QSettings::IniFormat);
 	QStringList name = settings.value("name").toStringList();
 	QStringList url = settings.value("url").toStringList();
 	QStringList dir = settings.value("dir").toStringList();

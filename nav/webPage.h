@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include <QtNetwork>
 #include <QtWebKit>
+#include "path.h"
 #include "httpget.h"
 #include "webview.h"
 #include "speeddial.h"
@@ -184,7 +185,7 @@ public:
 								  "QPushButton::pressed{border : none; background-image: url(':/closetab.png');}"
 								  "QPushButton::hover{background-image: url(':/closetab.png');}");
 		clearButton->setFlat(true);
-		QSettings settings(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+		QSettings settings(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 		motor = settings.value("motor").toString();
 		if (motor.isEmpty())
 		{

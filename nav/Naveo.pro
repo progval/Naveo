@@ -15,7 +15,8 @@ QT += network
 CONFIG += console
 
 # Input
-HEADERS += Browser.h \
+HEADERS += path.h \
+	Browser.h \
 	CookieJar.h \
 	googlesuggest.h \
 	httpget.h \

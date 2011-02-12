@@ -56,7 +56,7 @@ PluginDialog::PluginDialog()
 
 	setLayout(lay);
 
-	QSettings set(qApp->applicationDirPath() + "/pluginsList.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/pluginsList.ini", QSettings::IniFormat);
 	set.beginGroup(os);
 	QStringList items = set.value("list").toStringList();
 	set.endGroup();
@@ -68,7 +68,7 @@ PluginDialog::PluginDialog()
 
 void PluginDialog::installPlugin()
 {
-	QSettings set(qApp->applicationDirPath() + "/pluginsList.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/pluginsList.ini", QSettings::IniFormat);
 	set.beginGroup(listWidget->currentItem()->text(0));
 	emit install(listWidget->currentItem()->text(0), set.value("url").toString());
 	close();
@@ -76,7 +76,7 @@ void PluginDialog::installPlugin()
 
 void PluginDialog::getInfo()
 {
-	QSettings set(qApp->applicationDirPath() + "/pluginsList.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/pluginsList.ini", QSettings::IniFormat);
 	set.beginGroup(listWidget->currentItem()->text(0));
 	QMessageBox::about(this, listWidget->currentItem()->text(0), set.value("info").toString());
 }
@@ -93,7 +93,7 @@ void PluginDialog::indexChanged()
 
 void PluginDialog::search()
 {
-	QSettings set(qApp->applicationDirPath() + "/pluginsList.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/pluginsList.ini", QSettings::IniFormat);
 	set.beginGroup(os);
 	QStringList items = set.value("list").toStringList();
 	set.endGroup();
@@ -133,7 +133,7 @@ void PluginDialog::search()
 void PluginDialog::fillTree(QStringList list, bool tree)
 {
 	listWidget->clear();
-	QSettings set(qApp->applicationDirPath() + "/pluginsList.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/pluginsList.ini", QSettings::IniFormat);
 	QList<QTreeWidgetItem*> types;
 	foreach(QString plug, list)
 	{

@@ -129,7 +129,7 @@ void settingDialog::updateAll()
 	} else {
 		comboBox->setCurrentIndex(0);
 	}
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	QString current = set.value("currentSes").toString();
 	if(current.isEmpty()) {
 		current = tr("Default");
@@ -200,7 +200,7 @@ void settingDialog::on_pushButton_12_clicked()
 
 	save();
 
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	if(listWidget_2->currentItem()->text() == tr("Default"))
 	{
 		set.setValue("currentSes", "");
@@ -227,7 +227,7 @@ void settingDialog::on_pushButton_13_clicked()
 	{
 		cout<<"Unable to remove \""<<qPrintable(dir.absolutePath() + "/" + listWidget_2->currentItem()->text())<<"\""<<endl;
 	}
-	QSettings set(qApp->applicationDirPath() + "/Options.ini", QSettings::IniFormat);
+	QSettings set(naveoConfigurationPath + "/Options.ini", QSettings::IniFormat);
 	if(set.value("currentSes").toString() == listWidget_2->currentItem()->text())
 	{
 		set.setValue("currentSes", "");

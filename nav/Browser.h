@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui>
 #include <QtWebKit>
 #include <iostream>
+#include "path.h"
 #include "settingsDialog.h"
 #include "version.h"
 #include "download.h"
